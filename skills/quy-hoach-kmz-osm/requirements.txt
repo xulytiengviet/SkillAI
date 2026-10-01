@@ -1,0 +1,1 @@
+numpy\nscipy\nshapely>=2.0\npillow\n

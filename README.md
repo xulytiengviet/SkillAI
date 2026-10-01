@@ -28,13 +28,24 @@ SkillAI/
 │     └─ references/
 │        ├─ algorithm.md
 │        └─ chatgpt-usage.md
-└─ dist/
-   └─ quy-hoach-kmz-osm.zip
+├─ scripts/
+│  └─ package_skill.py
+└─ .github/workflows/package-skill.yml
 ```
 
 ## Cài vào ChatGPT
 
-Theo tài liệu OpenAI hiện hành, một Skill là thư mục có `SKILL.md` và có thể kèm scripts/references. Gói ZIP trong `dist/` chứa **một thư mục top-level duy nhất** và một `SKILL.md`, phù hợp để upload vào giao diện Skills hoặc API hỗ trợ Skills.
+Theo tài liệu OpenAI hiện hành, một Skill là thư mục có `SKILL.md` và có thể kèm scripts/references. Gói ZIP hợp lệ phải chứa **một thư mục top-level duy nhất** và đúng một `SKILL.md`.
+
+Tạo gói cài đặt:
+
+```bash
+python scripts/package_skill.py
+```
+
+Kết quả: `dist/quy-hoach-kmz-osm.zip`.
+
+GitHub Actions cũng tự tạo artifact ZIP khi skill thay đổi.
 
 ## Chạy script độc lập
 
@@ -52,6 +63,12 @@ python scripts/qh_overlay.py fetch-osm --bbox 10.735,106.690,10.835,106.820 --ou
 python scripts/qh_overlay.py align map.jpg --osm osm.json --out params.json --check check.jpg
 python scripts/qh_overlay.py export --params params.json --osm osm.json --name "Quy hoạch" --out quy-hoach.kmz
 ```
+
+## Logic tự khớp
+
+Skill dùng hai tầng:
+1. **Tự động theo sông/kênh/mặt nước** để tìm tịnh tiến, tỷ lệ và góc xoay.
+2. **Đường/giao lộ OSM làm GCP** để xác nhận hoặc hiệu chỉnh khi mặt nước yếu, ưu tiên 3–5 mốc hiện hữu trải đều.
 
 ## Ghi công
 

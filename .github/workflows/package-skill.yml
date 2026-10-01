@@ -1,0 +1,40 @@
+name: Package ChatGPT Skill
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "skills/quy-hoach-kmz-osm/**"
+      - "scripts/package_skill.py"
+      - ".github/workflows/package-skill.yml"
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build skill ZIP
+        run: python scripts/package_skill.py
+      - name: Validate bundle
+        run: |
+          python - <<'PY'
+          from zipfile import ZipFile
+          p = "dist/quy-hoach-kmz-osm.zip"
+          with ZipFile(p) as z:
+              names = z.namelist()
+          assert names, "ZIP is empty"
+          tops = {n.split("/", 1)[0] for n in names}
+          assert tops == {"quy-hoach-kmz-osm"}, tops
+          skills = [n for n in names if n.lower().endswith("/skill.md")]
+          assert len(skills) == 1, skills
+          print("OK:", p, "files=", len(names), "skill=", skills[0])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: quy-hoach-kmz-osm-skill
+          path: dist/quy-hoach-kmz-osm.zip
+          if-no-files-found: error
